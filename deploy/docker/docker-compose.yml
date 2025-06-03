@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  migration:
+    restart: on-failure
+    container_name: migration
+    depends_on:
+      - postgres-01
+    build:
+      dockerfile: ./deploy/docker/migration/Dockerfile
+      context: ./../../
+      args:
+        VERSION: ${VERSION}
+    env_file:
+      - .env
+      - ./migration/.env
+  quote-service:
+    restart: always
+    container_name: quote-service
+    depends_on:
+      - postgres-01
+    build:
+      dockerfile: ./deploy/docker/quote-service/Dockerfile
+      context: ./../../
+      args:
+        VERSION: ${VERSION}
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+      - ./quote-service/.env
+  postgres-01:
+    container_name: postgres-01
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: quote-service
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1
+    ports:
+      - "5432:5432"
+

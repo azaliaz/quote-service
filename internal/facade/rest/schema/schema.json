@@ -1,0 +1,191 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Quotes API",
+    "version": "1.0.0",
+    "description": "API для управления цитатами"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "paths": {
+    "/quotes": {
+      "get": {
+        "summary": "Получить список всех цитат или фильтровать по автору",
+        "parameters": [
+          {
+            "name": "author",
+            "in": "query",
+            "description": "Имя автора для фильтрации",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список цитат",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotesResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервера"
+          }
+        }
+      },
+      "post": {
+        "summary": "Добавить новую цитату",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddQuoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Цитата добавлена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddQuoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неверный запрос"
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервера"
+          }
+        }
+      }
+    },
+    "/quotes/random": {
+      "get": {
+        "summary": "Получить случайную цитату",
+        "responses": {
+          "200": {
+            "description": "Случайная цитата",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервера"
+          }
+        }
+      }
+    },
+    "/quotes/{id}": {
+      "delete": {
+        "summary": "Удалить цитату по id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Цитата удалена"
+          },
+          "404": {
+            "description": "Цитата не найдена"
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервера"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Quote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID цитаты"
+          },
+          "author": {
+            "type": "string",
+            "description": "Автор цитаты"
+          },
+          "quote": {
+            "type": "string",
+            "description": "Текст цитаты"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Дата и время создания"
+          }
+        }
+      },
+      "QuotesResponse": {
+        "type": "object",
+        "properties": {
+          "quotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Quote"
+            }
+          }
+        }
+      },
+      "QuoteResponse": {
+        "type": "object",
+        "properties": {
+          "quote": {
+            "$ref": "#/components/schemas/Quote"
+          }
+        }
+      },
+      "AddQuoteRequest": {
+        "type": "object",
+        "required": ["author", "quote"],
+        "properties": {
+          "author": {
+            "type": "string",
+            "description": "Автор цитаты"
+          },
+          "quote": {
+            "type": "string",
+            "description": "Текст цитаты"
+          }
+        }
+      },
+      "AddQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID добавленной цитаты"
+          }
+        }
+      }
+    }
+  }
+}

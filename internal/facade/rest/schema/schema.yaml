@@ -1,0 +1,167 @@
+openapi: 3.0.0
+info:
+  title: Quotes API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+security:
+  - BearerAuth: []
+paths:
+  /quotes:
+    get:
+      summary: Получить список всех цитат или фильтровать по автору
+      parameters:
+        - name: author
+          in: query
+          description: Имя автора для фильтрации цитат
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список цитат
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetQuotesResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Добавить новую цитату
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddQuoteRequest'
+      responses:
+        '201':
+          description: Цитата добавлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddQuoteResponse'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /quotes/random:
+    get:
+      summary: Получить случайную цитату
+      responses:
+        '200':
+          description: Случайная цитата
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRandomQuoteResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /quotes/{id}:
+    delete:
+      summary: Удалить цитату по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Цитата успешно удалена
+        '404':
+          description: Цитата не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Quote:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID цитаты
+        author:
+          type: string
+          description: Автор цитаты
+        quote:
+          type: string
+          description: Текст цитаты
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания цитаты
+
+    GetQuotesResponse:
+      type: object
+      properties:
+        quotes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Quote'
+
+    AddQuoteRequest:
+      type: object
+      required:
+        - author
+        - quote
+      properties:
+        author:
+          type: string
+          description: Автор цитаты
+        quote:
+          type: string
+          description: Текст цитаты
+
+    AddQuoteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID добавленной цитаты
+
+    GetRandomQuoteResponse:
+      type: object
+      properties:
+        quote:
+          $ref: '#/components/schemas/Quote'
+
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: string
+          description: Сообщение об ошибке
